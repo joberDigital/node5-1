@@ -1,0 +1,3 @@
+# Ignorar archivos de configuración de entorno
+echo ".env.local" >> .gitignore
+.env.local
