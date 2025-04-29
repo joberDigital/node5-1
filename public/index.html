@@ -11,58 +11,17 @@
     h2 { color: #333; }
     .details { margin-top: 10px; }
   
-    .spinner {
-  border: 4px solid #ccc;
-  border-top: 4px solid #333;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  animation: spin 0.8s linear infinite;
-  margin: 20px auto;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
   </style>
 </head>
 <body>
-  <h1>Tarjetas de Crédito</h1>
-  <div id="cards-container"></div>
+  <h1>Tarjetas</h1>
 <br>
-
-
-
-
-
-
-<!-- new date to create api         2 -->
 <h2>Agregar Nueva Tarjeta</h2>
 <form id="card-form">
   <input type="text" name="title" placeholder="Título" ><br>
   <input type="text" name="owner" placeholder="Propietario" ><br>
-  <input type="text" name="cardNumber" placeholder="Número de Tarjeta" ><br>
-  <input type="text" name="expiration" placeholder="Vencimiento (MM/YY)" ><br>
-  <input type="text" name="issuer" placeholder="Banco Emisor" ><br>
-  <select name="type" >
-    <option value="Crédito">Crédito</option>
-    <option value="Débito">Débito</option>
-  </select><br>
-  <input type="text" name="limite" placeholder="Límite de Crédito (ej: ฿5,000)" ><br>
-  <input type="text" name="estado" placeholder="Estado (ej: Activa)" ><br>
   <button type="submit">Agregar Tarjeta</button>
 </form>
-<!-- new date to create api         2 -->
-
-<div id="loading-indicator" class="spinner" style="display: none;"></div>
-
-
-
-
-
-
-
-
 
 <script >
 
@@ -94,7 +53,6 @@ export default function HomePage() {
 
     crearTarjeta();
 
-    // Este console.log solo prueba que la variable NO está accesible (y eso es bueno)
     console.log('¿Está accesible?', process.env.JSONBIN_API_KEY);
   }, []);
 
@@ -103,107 +61,53 @@ export default function HomePage() {
 
 
 
+const BIN_ID = '6811399b8a456b79669424f9';
+  const API_KEY = process.env.JSONBIN_API_KEY;
 
 
+  document.getElementById('card-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
+    const title = e.target.title.value.trim();
+    const owner = e.target.owner.value.trim();
 
-
-
-
-
-document.getElementById('card-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const form = e.target;
-  const newCard = {
-    title: form.title.value.trim(),
-    owner: form.owner.value.trim(),
-    cardNumber: form.cardNumber.value.trim(),
-    expiration: form.expiration.value.trim(),
-    issuer: form.issuer.value.trim(),
-    type: form.type.value,
-    details: [
-      { label: "Límite de crédito", value: form.limite.value.trim() },
-      { label: "Estado", value: form.estado.value.trim() }
-    ]
-  };
-
-  try {
-    const response = await fetch('/api/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newCard)
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-  alert('✅ Tarjeta agregada con éxito');
-  form.reset(); // limpia el formulario
-  cargarTarjetas(); // recarga solo las tarjetas, no la página
-}
-    
-    else {
-      console.error('Error en respuesta del servidor:', result);
-      alert(`❌ Error al agregar tarjeta: ${result.message}\nDetalle: ${result.detail || 'sin detalles'}`);
+    if (!title || !owner) {
+      alert('Por favor, completa todos los campos.');
+      return;
     }
 
-  } catch (error) {
-    console.error('Error en fetch:', error);
-    alert('❌ Error al conectar con el servidor');
-  }
-});
+    const card = { title, owner };
 
-let isLoadingCards = false;
+    try {
+      const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': API_KEY,
+        },
+        body: JSON.stringify({ record: card }),
+      });
 
-async function cargarTarjetas() {
-  if (isLoadingCards) return;
-  isLoadingCards = true;
+      if (!response.ok) {
+        throw new Error('Error al guardar la tarjeta');
+      }
 
-  const loadingEl = document.getElementById('loading-indicator');
-  const container = document.getElementById('cards-container');
-  loadingEl.style.display = 'block';
-  container.innerHTML = ''; // Limpia antes de renderizar
+      const data = await response.json();
+      console.log('Tarjeta guardada:', data);
+      alert('Tarjeta guardada con éxito');
 
-  try {
-    const response = await fetch('/api/cards');
-    const cards = await response.json();
-
-    if (!Array.isArray(cards)) {
-      throw new Error('La respuesta no es un array.');
+      e.target.reset(); // Clear the form
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Hubo un problema al guardar la tarjeta.');
     }
+  });
 
-    cards.forEach(card => {
-      const cardElement = document.createElement('div');
-      cardElement.className = 'card';
 
-      cardElement.innerHTML = `
-        <h2>${card.title}</h2>
-        <p><strong>Propietario:</strong> ${card.owner}</p>
-        <p><strong>Número:</strong> ${card.cardNumber}</p>
-        <p><strong>Vencimiento:</strong> ${card.expiration}</p>
-        <p><strong>Banco:</strong> ${card.issuer}</p>
-        <p><strong>Tipo:</strong> ${card.type}</p>
-        <div class="details">
-          ${card.details?.map(d => `<p><strong>${d.label}:</strong> ${d.value}</p>`).join('')}
-        </div>
-      `;
 
-      container.appendChild(cardElement);
-    });
 
-  } catch (error) {
-    console.error('Error al cargar tarjetas:', error);
-    container.innerHTML = `<p style="color:red;">❌ Error al cargar tarjetas</p>`;
-  } finally {
-    loadingEl.style.display = 'none';
-    isLoadingCards = false;
-  }
-}
-window.addEventListener('DOMContentLoaded', cargarTarjetas);
-</script>
+  </script>
 
-</body>
-</html>
+  
+  </body>
+  </html>
