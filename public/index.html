@@ -24,16 +24,10 @@
 </form>
 <br>
 <script >
-
-
-
-
-const BIN_ID = BIN_ID;
-  const API_KEY = JSONBIN_API_KEY;
-
-
   document.getElementById('card-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const BIN_ID = BIN_ID;
+  const API_KEY = JSONBIN_API_KEY;
 
     const title = e.target.title.value.trim();
     const owner = e.target.owner.value.trim();
