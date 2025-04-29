@@ -23,17 +23,19 @@
   <button type="submit">Agregar Tarjeta</button>
 </form>
 <br>
-<script >
+<script>
+  const API_KEY = JSONBIN_API_KEY;
+  const BIN_ID = BIN_ID;
+
+
   document.getElementById('card-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const BIN_ID = BIN_ID;
-  const API_KEY = JSONBIN_API_KEY;
 
     const title = e.target.title.value.trim();
     const owner = e.target.owner.value.trim();
 
     if (!title || !owner) {
-      alert('Por favor, completa todos los campos.');
+      alert('Por favor completa todos los campos.');
       return;
     }
 
@@ -49,26 +51,17 @@
         body: JSON.stringify({ record: card }),
       });
 
-      if (!response.ok) {
-        throw new Error('Error al guardar la tarjeta');
-      }
-
+      if (!response.ok) throw new Error('Error en la solicitud');
+      
       const data = await response.json();
       console.log('Tarjeta guardada:', data);
-      alert('Tarjeta guardada con éxito');
-
-      e.target.reset(); // Clear the form
-    } catch (error) {
-      console.error('Error:', error);
+      alert('¡Tarjeta guardada con éxito!');
+      e.target.reset();
+    } catch (err) {
+      console.error('Error:', err);
       alert('Hubo un problema al guardar la tarjeta.');
     }
   });
-
-
-
-
-  </script>
-
-  
+</script>  
   </body>
   </html>
