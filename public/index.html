@@ -24,8 +24,8 @@
 </form>
 <br>
 <script>
-  const API_KEY = JSONBIN_API_KEY;
-  const BIN_ID = BIN_ID;
+  const API_KEY = process.env.JSONBIN_API_KEY;
+  const BIN_ID = process.env.BIN_ID;
 
 
   document.getElementById('card-form').addEventListener('submit', async (e) => {
