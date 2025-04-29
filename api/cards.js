@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const BIN_ID = '681128758561e97a500a49ca';
+  const BIN_ID = '6810063a8a456b7966937a65';
   const API_KEY = process.env.JSONBIN_API_KEY;
   try {
     const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {

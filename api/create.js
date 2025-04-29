@@ -4,9 +4,9 @@
           if (req.method !== 'POST') {
             return res.status(405).json({ message: 'Método no permitido' });
           }
-        
 
-            const BIN_ID = '681128758561e97a500a49ca';
+
+            const BIN_ID = '6810063a8a456b7966937a65';
           const API_KEY = process.env.JSONBIN_API_KEY;
           const card = req.body;
         
