@@ -1,4 +1,4 @@
-module.export =async function (req, res) {
+export default async function handler(req, res) {
   const BIN_ID = '681128758561e97a500a49ca';
   const API_KEY = process.env.JSONBIN_API_KEY;
   try {
